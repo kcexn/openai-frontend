@@ -1,0 +1,33 @@
+<script lang="ts">
+	let { title = 'Default Title' }: { title?: string } = $props();
+</script>
+
+<header
+    class="custom-header-styles"
+>
+	<div class="flex items-center gap-4 text-[#0d141c]">
+		<div class="size-4">
+			<slot name="logo">
+				<!-- Default logo can be placed here if desired -->
+				<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path
+						d="M42.4379 44C42.4379 44 36.0744 33.9038 41.1692 24C46.8624 12.9336 42.2078 4 42.2078 4L7.01134 4C7.01134 4 11.6577 12.932 5.96912 23.9969C0.876273 33.9029 7.27094 44 7.27094 44L42.4379 44Z"
+						fill="currentColor"
+					></path>
+				</svg>
+			</slot>
+		</div>
+		<h2 class="text-[#0d141c] text-lg font-bold leading-tight tracking-[-0.015em]">
+			{title}
+		</h2>
+	</div>
+	<div class="flex flex-1 justify-end gap-8">
+		<slot name="actions"></slot>
+	</div>
+</header>
+
+<style lang="postcss">
+	.custom-header-styles {
+		@apply flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e7edf4] px-10 py-3;
+	}
+</style>

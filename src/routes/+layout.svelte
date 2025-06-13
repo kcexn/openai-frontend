@@ -1,9 +1,11 @@
-<script lang="ts">
+<script>
+	import '../app.css';
 	let { children } = $props();
 </script>
+
 <div
-	class="relative flex size-full min-h-screen flex-col bg-slate-50 group/design-root overflow-x-hidden"
+	class="group/design-root relative flex size-full min-h-screen flex-col overflow-x-hidden bg-slate-50"
 	style="font-family: Inter, 'Noto Sans', sans-serif;"
 >
-    {@render children()}
+	{@render children()}
 </div>

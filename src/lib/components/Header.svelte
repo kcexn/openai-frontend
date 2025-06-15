@@ -6,7 +6,7 @@
 <header class="openai-header">
 	<div class="flex items-center gap-4 text-[#0d141c]">
 		<div class="size-4">
-			<ShieldIcon class="size-full" />
+			<ShieldIcon />
 		</div>
 		<h2 class="openai-header-title">
 			{title}

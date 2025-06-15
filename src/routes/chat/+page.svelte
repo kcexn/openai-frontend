@@ -1,37 +1,49 @@
 <script lang="ts">
     import { tick } from 'svelte';
+    import { goto } from '$app/navigation';
 	import { Header, ActionButton, MessageRow, ChatInput } from '$lib/components';
 	import { GearIcon, AvatarIcon } from '$lib/components/icons';
 	import { PUBLIC_BACKEND_HOST } from '$env/static/public';
+    import { getAccessToken } from '$lib/services/auth0.service';
 
     let { data } = $props();
-    async function submitCallback(prompt: string){
-        data = { ...data, messages: [...data.messages, { role: 'user', content: prompt }] };
-        await tick();
-        window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'auto' });  
-        const response = await fetch(`${PUBLIC_BACKEND_HOST}/chat`,
-            {
+    async function sendMessage(prompt: string) {
+        const token = await getAccessToken();
+        if (token) {
+            return await fetch(`${PUBLIC_BACKEND_HOST}/chat`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
                 },
                 credentials: 'include',
                 body: JSON.stringify({ prompt })
-            }
-        );
-        if (!response.ok) {
-            let errorData;
-            try {
-                errorData = await response.json();
-            } catch (e) {
-                errorData = { message: response.statusText };
-            }
-            console.error('Error sending message:', response.status, errorData);
-            return;
+            });
+        } else {
+            await goto('/');
+            return undefined;
         }
-        data = { ...data, messages: [...data.messages, await response.json()] };
+    }
+    async function submitCallback(prompt: string) {
+        data = { ...data, messages: [...data.messages, { role: 'user', content: prompt }] };
         await tick();
         window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'auto' });
+        const response = await sendMessage(prompt);
+        if (response) {
+            if(!response.ok) {
+                let errorData;
+                try {
+                    errorData = await response.json();
+                } catch (e) {
+                    errorData = { message: response.statusText };
+                }
+                console.error('Error sending message:', response.status, errorData);
+                return;
+            }
+            data = { ...data, messages: [...data.messages, await response.json()] };
+            await tick();
+            window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'auto' });
+        }
     }
 
     async function clearChatHistory() {

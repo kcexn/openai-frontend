@@ -1,5 +1,6 @@
 <script lang="ts">
-	let { imageUrl, title, subtitle, buttonText = 'Learn More', buttonHref } = $props();
+	let { imageUrl, title, subtitle, buttonText = 'Learn More', buttonHref, isLoading = false, isAuthenticated = false } = $props();
+	import { login as serviceLogin } from '$lib/services/auth0.service';
 </script>
 
 <div class="feature-section-container">
@@ -13,10 +14,24 @@
 				{subtitle}
 			</h2>
 		</div>
-		{#if buttonHref}
-			<a href={buttonHref} class="feature-section-button">{buttonText}</a>
+		{#if isLoading}
+			<button class="feature-section-button" disabled>
+				<span class="truncate">Loading...</span>
+			</button>
+		{:else if isAuthenticated}
+			{#if buttonHref}
+				<a href={buttonHref} class="feature-section-button">
+					<span class="truncate">{buttonText}</span>
+				</a>
+			{:else}
+				<button class="feature-section-button">
+					<span class="truncate">{buttonText}</span>
+				</button>
+			{/if}
 		{:else}
-			<button class="feature-section-button">{buttonText}</button>
+			<button class="feature-section-button" onclick={() => serviceLogin({ appState: { targetUrl: buttonHref || '/' } })}>
+				<span class="truncate">Login to {buttonText.toLowerCase()}</span>
+			</button>
 		{/if}
 	</div>
 </div>

@@ -1,68 +1,27 @@
 <script lang="ts">
 	import { Header, FeatureSection } from '$lib/components';
-    import { createAuth0Client, type Auth0Client } from '@auth0/auth0-spa-js';
+    import { authStore, login as serviceLogin } from '$lib/services/auth0.service';
 
-    let { data } = $props();
-    let isAuthenticated = $state(false);
-    let auth0Client: Auth0Client | undefined = $state(undefined);
-
-    const login = async () => {
-        if (!auth0Client) {
-            console.error("Auth0 client not initialized. Cannot login.");
-            return;
-        }
-        const redirectUri = window.location.origin.trim();
-        console.log(`Attempting login with redirect_uri: ${redirectUri}`);
-        try {
-            await auth0Client.loginWithRedirect({
-                authorizationParams: {
-                    redirect_uri: redirectUri
-                }
-            });
-        } catch (error) {
-            console.error("Error initiating loginWithRedirect:", error);
-        }
-    };
-
-    $effect(() => {
-        let isMounted = true;
-
-        async function initializeAuth0() {
-            if (auth0Client === undefined && data.auth0Credentials) {
-                const client = await createAuth0Client({
-                    domain: data.auth0Credentials.domain,
-                    clientId: data.auth0Credentials.clientId,
-                    authorizationParams: {
-                        redirect_uri: window.location.origin
-                    }
-                });
-                if (!isMounted) return;
-                auth0Client = client;
-
-                if (window.location.search.includes("code=") && window.location.search.includes("state=")) {
-                    await auth0Client.handleRedirectCallback();
-                    window.history.replaceState({}, document.title, window.location.pathname); // Clean URL
-                }
-
-                if (!isMounted) return;
-                isAuthenticated = await auth0Client.isAuthenticated();
-            }
-        }
-
-        initializeAuth0();
-
-        return () => {
-            isMounted = false;
-        };
-    });
+    let isAuthenticated = $derived($authStore.isAuthenticated);
+    let isLoading = $derived($authStore.isLoading);
 </script>
 
 <div class="page-container">
 	<Header>
 		{#snippet actions()}
-            <a href="/chat" class="btn-primary-action">
-                <span class="truncate">Start Chatting</span>
-            </a>
+            {#if isLoading}
+                <button class="btn-primary-action" disabled>
+                    <span class="truncate">Loading...</span>
+                </button>
+            {:else if isAuthenticated}
+                <a href="/chat" class="btn-primary-action">
+                    <span class="truncate">Start Chatting</span>
+                </a>
+            {:else}
+                <button class="btn-primary-action" onclick={() => serviceLogin({ appState: { targetUrl: '/chat' } })}>
+                    <span class="truncate">Login to Start Chatting</span>
+                </button>
+            {/if}
 		{/snippet}
 	</Header>
 	<div class="page-content-wrapper">
@@ -73,6 +32,8 @@
 				subtitle="Experience the future of communication with our intelligent chatbot. Get instant answers, personalized assistance, and engaging conversations."
 				buttonText="Start Chatting"
 				buttonHref="/chat"
+                {isLoading}
+                {isAuthenticated}
 			/>
 		</div>
 	</div>

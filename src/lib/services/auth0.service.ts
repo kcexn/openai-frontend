@@ -1,11 +1,14 @@
 import { auth0Credentials } from "$lib/data/auth0";
+import { PUBLIC_BACKEND_HOST } from "$env/static/public";
+import { goto } from "$app/navigation";
 import { writable, type Writable } from 'svelte/store';
 import { 
     createAuth0Client,
     type Auth0Client,
     type User,
     type LogoutOptions,
-    type RedirectLoginOptions
+    type RedirectLoginOptions,
+    type GetTokenSilentlyOptions
 } from '@auth0/auth0-spa-js';
 
 interface AuthState {
@@ -36,13 +39,14 @@ export async function initializeAuth0Client() {
 			domain: auth0Credentials.domain,
 			clientId: auth0Credentials.clientId,
 			authorizationParams: {
+                audience: `${PUBLIC_BACKEND_HOST}`,
 				redirect_uri: window.location.origin,
 			},
 		});
 
 		if (window.location.search.includes("code=") && window.location.search.includes("state=")) {
 			const { appState } = await clientInstance.handleRedirectCallback();
-			window.history.replaceState({}, document.title, appState?.targetUrl || window.location.pathname);
+            await goto(appState?.targetUrl || window.location.pathname, { replaceState: true });
 		}
 
 		const isAuthenticated = await clientInstance.isAuthenticated();
@@ -73,4 +77,17 @@ export async function login(options?: RedirectLoginOptions) {
 export async function logout(options?: LogoutOptions) {
 	if (!clientInstance) return;
 	await clientInstance.logout(options || { logoutParams: { returnTo: window.location.origin } });
+}
+
+export async function getAccessToken(options?: GetTokenSilentlyOptions): Promise<string | undefined> {
+	if (!clientInstance) {
+		console.error("Auth0 client not initialized. Call initializeAuth0Client first.");
+		return undefined;
+	}
+	try {
+		return await clientInstance.getTokenSilently(options);
+	} catch (error) {
+		console.error("Error getting access token:", error);
+		return undefined;
+	}
 }

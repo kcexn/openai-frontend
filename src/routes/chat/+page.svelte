@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { tick } from 'svelte';
 	import { Header, ActionButton, MessageRow, ChatInput } from '$lib/components';
 	import { GearIcon, AvatarIcon } from '$lib/components/icons';
 	import { PUBLIC_BACKEND_HOST } from '$env/static/public';
@@ -6,6 +7,8 @@
     let { data } = $props();
     async function submitCallback(prompt: string){
         data = { ...data, messages: [...data.messages, { role: 'user', content: prompt }] };
+        await tick();
+        window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'auto' });  
         const response = await fetch(`${PUBLIC_BACKEND_HOST}/chat`,
             {
                 method: 'POST',
@@ -27,12 +30,24 @@
             return;
         }
         data = { ...data, messages: [...data.messages, await response.json()] };
+        await tick();
+        window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'auto' });
     }
 
-    $effect(()=>{
-        if (!data.messages || data.messages.length === 0)
-            return;
-        window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'auto' });  
+    async function clearChatHistory() {
+        document.cookie = "session_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        data = { ...data, messages: [] };
+        await tick();
+        window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'auto' });
+    }
+
+    let messageScrollAreaEl: HTMLDivElement;
+    let fixedFooterEl: HTMLDivElement;
+    $effect(() => {
+        if (fixedFooterEl && messageScrollAreaEl) {
+            const footerHeight = fixedFooterEl.offsetHeight;
+            messageScrollAreaEl.style.paddingBottom = `${footerHeight}px`;
+        }
     });
 </script>
 
@@ -53,7 +68,7 @@
 <div class="page-layout-container">
 	<div class="chat-page-wrapper">
 		<div class="chat-content-container">
-			<div class="message-scroll-area">
+			<div class="message-scroll-area" bind:this={messageScrollAreaEl}>
                 {#each data.messages as {role, content}}
                     <MessageRow
                         senderName = {role==='assistant' ? 'AI Assistant' : 'User'}
@@ -66,9 +81,14 @@
 		</div>
 	</div>
 </div>
-<div class="fixed-footer-outer">
+<div class="fixed-footer-outer" bind:this={fixedFooterEl}>
 	<div class="fixed-footer-inner">
 		<ChatInput {submitCallback}/>
+        <div class="clear-chat-button-wrapper">
+            <button class="clear-chat-button" onclick={clearChatHistory}>
+                <span class="truncate">Clear Chat History</span>
+            </button>
+        </div>
 	</div>
 </div>
 
@@ -86,7 +106,7 @@
 		@apply mx-auto max-w-[960px];
 	}
 	.message-scroll-area {
-		@apply flex flex-col mt-auto pb-20; /* Added mt-auto */
+		@apply flex flex-col mt-auto;
 	}
 	.page-layout-container {
 		@apply flex h-full grow flex-col pt-16;
@@ -96,5 +116,11 @@
 	}
 	.fixed-footer-inner {
 		@apply mx-auto max-w-[960px];
+	}
+	.clear-chat-button-wrapper {
+		@apply flex px-4 py-3 justify-end;
+	}
+	.clear-chat-button {
+		@apply flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 px-4 bg-[#eaedf1] text-[#101518] text-sm font-bold leading-normal tracking-[0.015em];
 	}
 </style>

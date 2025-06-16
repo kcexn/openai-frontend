@@ -1,7 +1,7 @@
 {
 	"name": "in-volo-poc",
 	"main": ".svelte-kit/cloudflare/_worker.js",
-	"compatibility_date": "2025-01-01",
+	"compatibility_date": "2025-06-16",
 	"assets": {
 		"binding": "ASSETS",
 		"directory": ".svelte-kit/cloudflare"

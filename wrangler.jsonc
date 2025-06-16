@@ -1,0 +1,5 @@
+{
+    "name": "in-volo-poc",
+    "main": ".svelte-kit/output/server/index.js",
+    "compatibility_date": "2025-06-16"
+}

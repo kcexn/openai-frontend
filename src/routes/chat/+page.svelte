@@ -122,7 +122,7 @@
 
 <style lang="postcss">
 	.chat-page-wrapper {
-		@apply flex flex-1 justify-center overflow-y-hidden px-40 py-5;
+		@apply flex flex-1 justify-center overflow-y-hidden px-4 py-5 sm:px-8 md:px-20 lg:px-40;
 	}
 	.chat-content-container {
 		@apply flex max-w-[960px] flex-1 flex-col overflow-y-hidden;

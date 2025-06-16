@@ -27,9 +27,9 @@
 		@apply flex flex-1 flex-col gap-1;
 	}
 	.message-sender {
-		@apply max-w-[360px] text-[13px] font-normal leading-normal text-[#49739c];
+		@apply max-w-full text-[13px] font-normal leading-normal text-[#49739c] sm:max-w-[360px];
 	}
 	.message-bubble {
-		@apply flex max-w-[360px] rounded-xl bg-[#e7edf4] px-4 py-3 text-base font-normal leading-normal text-[#0d141c];
+		@apply flex max-w-full rounded-xl bg-[#e7edf4] px-4 py-3 text-base font-normal leading-normal text-[#0d141c] sm:max-w-[360px];
 	}
 </style>

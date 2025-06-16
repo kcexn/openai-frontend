@@ -1,5 +1,13 @@
 <script lang="ts">
-	let { imageUrl, title, subtitle, buttonText = 'Learn More', buttonHref, isLoading = false, isAuthenticated = false } = $props();
+	let {
+		imageUrl,
+		title,
+		subtitle,
+		buttonText = 'Learn More',
+		buttonHref,
+		isLoading = false,
+		isAuthenticated = false
+	} = $props();
 	import { login as serviceLogin } from '$lib/services/auth0.service';
 </script>
 
@@ -29,7 +37,10 @@
 				</button>
 			{/if}
 		{:else}
-			<button class="feature-section-button" onclick={() => serviceLogin({ appState: { targetUrl: buttonHref || '/' } })}>
+			<button
+				class="feature-section-button"
+				onclick={() => serviceLogin({ appState: { targetUrl: buttonHref || '/' } })}
+			>
 				<span class="truncate">Login to {buttonText.toLowerCase()}</span>
 			</button>
 		{/if}

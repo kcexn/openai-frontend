@@ -9,11 +9,7 @@
 
 <div class="message-row" class:flex-row-reverse={!reversed}>
 	<div class="message-avatar" style="--avatar-image-url: url({avatarImageUrl});"></div>
-	<div
-		class="message-content"
-		class:items-start={reversed}
-		class:items-end={!reversed}
-	>
+	<div class="message-content" class:items-start={reversed} class:items-end={!reversed}>
 		<p class="message-sender">{senderName}</p>
 		<p class="message-bubble">{messageText}</p>
 	</div>

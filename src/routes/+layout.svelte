@@ -1,11 +1,11 @@
 <script>
 	import '../app.css';
-    import { initializeAuth0Client } from '$lib/services/auth0.service';
-    import { onMount } from 'svelte';
+	import { initializeAuth0Client } from '$lib/services/auth0.service';
+	import { onMount } from 'svelte';
 
-    onMount(() => {
-        initializeAuth0Client();
-    });
+	onMount(() => {
+		initializeAuth0Client();
+	});
 	let { children } = $props();
 </script>
 

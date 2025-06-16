@@ -21,7 +21,10 @@
 				<p class="settings-page-title">Settings</p>
 			</div>
 			<h3 class="settings-section-title">Account</h3>
-			<button class="settings-item-container settings-logout-action" onclick={() => serviceLogout()}>
+			<button
+				class="settings-item-container settings-logout-action"
+				onclick={() => serviceLogout()}
+			>
 				<div class="settings-item-text-wrapper">
 					<p class="settings-item-title">Logout</p>
 				</div>
@@ -47,10 +50,10 @@
 		@apply px-4 pb-2 pt-4 text-lg font-bold leading-tight tracking-[-0.015em] text-[#0d141c];
 	}
 	.settings-item-container {
-		@apply flex min-h-[72px] items-center justify-between gap-4 bg-slate-50 px-4 py-2; /* Base styles for an item row */
+		@apply flex min-h-[72px] items-center justify-between gap-4 bg-slate-50 px-4 py-2;
 	}
 	.settings-logout-action {
-		@apply w-full cursor-pointer text-left hover:bg-slate-100; /* Styles specific to the logout button behavior */
+		@apply w-full cursor-pointer text-left hover:bg-slate-100;
 	}
 	.settings-item-text-wrapper {
 		@apply flex flex-col justify-center;

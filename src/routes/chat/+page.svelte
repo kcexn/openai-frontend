@@ -25,10 +25,10 @@
 		}
 	}
 	async function submitCallback(prompt: string) {
-		let messages = [
+		const messages = [
 			...data.messages,
-			{ role: 'user', content: prompt },
-			{ role: 'assistant', content: '...' }
+			{ id: crypto.randomUUID(), role: 'user', content: prompt },
+			{ id: crypto.randomUUID(), role: 'assistant', content: '...' }
 		];
 		data = { ...data, messages };
 		await tick();
@@ -40,15 +40,20 @@
 				let errorData;
 				try {
 					errorData = await response.json();
-				} catch (e) {
+				} catch {
 					errorData = { message: response.statusText };
 				}
-				messages.push({ role: 'assistant', content: `Error: ${errorData.message}` });
+				messages.push({
+					id: crypto.randomUUID(),
+					role: 'assistant',
+					content: `Error: ${errorData.message}`
+				});
 				data = { ...data, messages };
 				console.error('Error sending message:', response.status, errorData);
 				return;
 			}
-			messages.push(await response.json());
+			const aiResponse = await response.json();
+			messages.push({ id: crypto.randomUUID(), ...aiResponse });
 			data = { ...data, messages };
 			await tick();
 			window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'auto' });
@@ -90,7 +95,7 @@
 	<div class="chat-page-wrapper">
 		<div class="chat-content-container">
 			<div class="message-scroll-area" bind:this={messageScrollAreaEl}>
-				{#each data.messages as { role, content }}
+				{#each data.messages as { id, role, content } (id)}
 					<MessageRow
 						senderName={role === 'assistant' ? 'AI Assistant' : 'User'}
 						messageText={content}

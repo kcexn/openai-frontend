@@ -31,8 +31,8 @@
 		<div class="page-content-container">
 			<FeatureSection
 				imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuCvhSV7Cq0cigCvdvtodd0NDi8VOs6PXdVOzPASEfwIQUGHSINPwjMh23oFfPhOdvAZfrnsh2SEHRbxMuRymWwSd2TsLp2_z6GV0I0ysJFtxESDE3R5FwK60f7zDpEVr8oC8aDN8_Z10I9iR7O_eTeTaY1hvyRKDVT-wOXu5MflauFa7dTlHZc7Ncjs_k4_QdWjd2bC6SfPii7-sGso26tV7gL96WCcEuVRedo3tjaSgkKVpx27sZI2DHGT4MSjB0aNL7oraOIkPDuH"
-				title="Your AI-Powered Chat Companion"
-				subtitle="Experience the future of communication with our intelligent chatbot. Get instant answers, personalized assistance, and engaging conversations."
+				title="Your AI-Powered Assistant"
+				subtitle="Experience the future with our intelligent assistant. Get instant answers and personalized assistance."
 				buttonText="Start Chatting"
 				buttonHref="/chat"
 				{isLoading}

@@ -6,7 +6,40 @@
 	import { PUBLIC_BACKEND_HOST } from '$env/static/public';
 	import { getAccessToken } from '$lib/services/auth0.service';
 
-	let { data } = $props();
+	let { data }: { data: { messages: { id: string, role: string, content: string }[] } } = $props();
+    async function getMessages() {
+        const token = await getAccessToken();
+		if (token) {
+			const response = await fetch(`${PUBLIC_BACKEND_HOST}/chat`, {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`
+				},
+				credentials: 'include',
+			});
+            if (!response.ok) {
+				let errorData;
+				try {
+					errorData = await response.json();
+				} catch {
+					errorData = { message: response.statusText };
+				}
+				console.error('Error getting messages:', response.status, errorData);
+				return;
+			}
+            const aiResponse = await response.json();
+            const messages = aiResponse.map((msg: {role: string, content: string}) => {
+                return { id: crypto.randomUUID(), ...msg };
+            });
+			data = { ...data, messages };
+			await tick();
+			window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'auto' });
+		} else {
+			await goto('/');
+			return undefined;
+		}
+    }
 	async function sendMessage(prompt: string) {
 		const token = await getAccessToken();
 		if (token) {
@@ -60,16 +93,10 @@
 		}
 	}
 
-	async function clearChatHistory() {
-		document.cookie = 'session_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-		data = { ...data, messages: [] };
-		await tick();
-		window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'auto' });
-	}
-
 	let messageScrollAreaEl: HTMLDivElement;
 	let fixedFooterEl: HTMLDivElement;
 	onMount(() => {
+        getMessages();
 		if (fixedFooterEl && messageScrollAreaEl) {
 			const footerHeight = fixedFooterEl.offsetHeight;
 			messageScrollAreaEl.style.paddingBottom = `${footerHeight}px`;
@@ -112,11 +139,6 @@
 <div class="fixed-footer-outer" bind:this={fixedFooterEl}>
 	<div class="fixed-footer-inner">
 		<ChatInput {submitCallback} />
-		<div class="clear-chat-button-wrapper">
-			<button class="clear-chat-button" onclick={clearChatHistory}>
-				<span class="truncate">Clear Chat History</span>
-			</button>
-		</div>
 	</div>
 </div>
 
@@ -144,11 +166,5 @@
 	}
 	.fixed-footer-inner {
 		@apply mx-auto max-w-[960px];
-	}
-	.clear-chat-button-wrapper {
-		@apply flex justify-end px-4 py-3;
-	}
-	.clear-chat-button {
-		@apply flex h-10 min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full bg-[#eaedf1] px-4 text-sm font-bold leading-normal tracking-[0.015em] text-[#101518];
 	}
 </style>

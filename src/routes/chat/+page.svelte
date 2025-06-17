@@ -93,6 +93,35 @@
 		}
 	}
 
+	async function newChat() {
+        const token = await getAccessToken();
+		if (token) {
+			const response = await fetch(`${PUBLIC_BACKEND_HOST}/chat`, {
+				method: 'DELETE',
+				headers: {
+					Authorization: `Bearer ${token}`
+				},
+				credentials: 'include'
+			});
+            if (!response.ok) {
+				let errorData;
+				try {
+					errorData = await response.json();
+				} catch {
+					errorData = { message: response.statusText };
+				}
+				console.error('Error delete session:', response.status, errorData);
+				return;
+			}
+		} else {
+			await goto('/');
+			return undefined;
+		}
+		data = { ...data, messages: [] };
+		await tick();
+        window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'auto' });
+	}
+
 	let messageScrollAreaEl: HTMLDivElement;
 	let fixedFooterEl: HTMLDivElement;
 	onMount(() => {
@@ -139,6 +168,11 @@
 <div class="fixed-footer-outer" bind:this={fixedFooterEl}>
 	<div class="fixed-footer-inner">
 		<ChatInput {submitCallback} />
+        <div class="new-chat-button-container">
+            <button class="btn-new-chat" onclick={newChat}>
+                <span class="truncate">New Chat</span>
+            </button>
+        </div>
 	</div>
 </div>
 
@@ -166,5 +200,11 @@
 	}
 	.fixed-footer-inner {
 		@apply mx-auto max-w-[960px];
+	}
+	.new-chat-button-container {
+		@apply flex justify-end px-2 py-2 sm:px-4 sm:py-3;
+	}
+	.btn-new-chat {
+		@apply flex h-8 min-w-[70px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full bg-[#eaedf1] px-3 text-xs font-bold leading-normal tracking-[0.015em] text-[#101518] hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-300 focus:ring-opacity-50 sm:h-10 sm:min-w-[84px] sm:px-4 sm:text-sm;
 	}
 </style>

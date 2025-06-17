@@ -11,7 +11,7 @@ import {
 	type GetTokenSilentlyOptions
 } from '@auth0/auth0-spa-js';
 
-interface AuthState {
+export interface AuthState {
 	auth0Client: Auth0Client | undefined;
 	isAuthenticated: boolean;
 	isLoading: boolean;

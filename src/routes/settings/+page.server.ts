@@ -5,5 +5,5 @@ export async function load(event) {
     if(user === undefined || !isAuthenticated) {
         redirect(307, '/');
     }
-	return { messages: [] as { id: string; role: string; content: string }[] };
+	return null;
 }

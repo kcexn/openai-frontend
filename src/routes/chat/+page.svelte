@@ -111,7 +111,7 @@
 			}
 		} else {
 			goto('/', { replaceState: true });
-            return;
+			return;
 		}
 		data = { ...data, messages: [] };
 		await tick();
@@ -120,17 +120,15 @@
 
 	let messageScrollAreaEl: HTMLDivElement;
 	let fixedFooterEl: HTMLDivElement;
-    onMount(() => {
-        return waitForAuth(
-            async () => {
-                getMessages();
-                if (fixedFooterEl && messageScrollAreaEl) {
-                    const footerHeight = fixedFooterEl.offsetHeight;
-                    messageScrollAreaEl.style.paddingBottom = `${footerHeight}px`;
-                }
-            }
-        );
-    });
+	onMount(() => {
+		return waitForAuth(async () => {
+			getMessages();
+			if (fixedFooterEl && messageScrollAreaEl) {
+				const footerHeight = fixedFooterEl.offsetHeight;
+				messageScrollAreaEl.style.paddingBottom = `${footerHeight}px`;
+			}
+		});
+	});
 </script>
 
 <div class="fixed-header-outer">

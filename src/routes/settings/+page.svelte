@@ -1,11 +1,11 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
+	import { onMount } from 'svelte';
 	import { Header, ActionButton } from '$lib/components';
 	import { waitForAuth, logout as serviceLogout } from '$lib/services/auth0.service';
 	import { GearIcon, AvatarIcon } from '$lib/components/icons';
-    onMount(() => {
-        return waitForAuth(async () => {});
-    });
+	onMount(() => {
+		return waitForAuth(async () => {});
+	});
 </script>
 
 <div class="layout-container flex h-full grow flex-col">

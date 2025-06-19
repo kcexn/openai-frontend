@@ -4,7 +4,7 @@
 	import { Header, ActionButton, MessageRow, ChatInput } from '$lib/components';
 	import { GearIcon, AvatarIcon } from '$lib/components/icons';
 	import { PUBLIC_BACKEND_HOST } from '$env/static/public';
-	import { getAccessToken } from '$lib/services/auth0.service';
+	import { waitForAuth, getAccessToken } from '$lib/services/auth0.service';
 
 	let { data }: { data: { messages: { id: string; role: string; content: string }[] } } = $props();
 	async function getMessages() {
@@ -36,8 +36,7 @@
 			await tick();
 			window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'auto' });
 		} else {
-			await goto('/');
-			return undefined;
+			goto('/', { replaceState: true });
 		}
 	}
 	async function sendMessage(prompt: string) {
@@ -53,8 +52,7 @@
 				body: JSON.stringify({ prompt })
 			});
 		} else {
-			await goto('/');
-			return undefined;
+			goto('/', { replaceState: true });
 		}
 	}
 	async function submitCallback(prompt: string) {
@@ -83,7 +81,6 @@
 				});
 				data = { ...data, messages };
 				console.error('Error sending message:', response.status, errorData);
-				return;
 			}
 			const aiResponse = await response.json();
 			messages.push({ id: crypto.randomUUID(), ...aiResponse });
@@ -92,7 +89,6 @@
 			window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'auto' });
 		}
 	}
-
 	async function newChat() {
 		const token = await getAccessToken();
 		if (token) {
@@ -114,8 +110,8 @@
 				return;
 			}
 		} else {
-			await goto('/');
-			return undefined;
+			goto('/', { replaceState: true });
+            return;
 		}
 		data = { ...data, messages: [] };
 		await tick();
@@ -124,13 +120,17 @@
 
 	let messageScrollAreaEl: HTMLDivElement;
 	let fixedFooterEl: HTMLDivElement;
-	onMount(() => {
-		getMessages();
-		if (fixedFooterEl && messageScrollAreaEl) {
-			const footerHeight = fixedFooterEl.offsetHeight;
-			messageScrollAreaEl.style.paddingBottom = `${footerHeight}px`;
-		}
-	});
+    onMount(() => {
+        return waitForAuth(
+            async () => {
+                getMessages();
+                if (fixedFooterEl && messageScrollAreaEl) {
+                    const footerHeight = fixedFooterEl.offsetHeight;
+                    messageScrollAreaEl.style.paddingBottom = `${footerHeight}px`;
+                }
+            }
+        );
+    });
 </script>
 
 <div class="fixed-header-outer">

@@ -1,35 +1,33 @@
 <script lang="ts">
-	import { onNavigate } from '$app/navigation';
+	import { onMount } from 'svelte';
+	import { replaceState } from '$app/navigation';
 	import { Header, FeatureSection } from '$lib/components';
-	import { authStore, login as serviceLogin } from '$lib/services/auth0.service';
+	import { waitForAuth, authStore, login as serviceLogin } from '$lib/services/auth0.service';
 
-	onNavigate(() => {
-		const abortController = new AbortController();
+    const checkAndLogin = async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        const redirect = urlParams.get('redirect');
 
-		const waitForAuth = async () => {
-			while (!$authStore.auth0Client && !abortController.signal.aborted) {
-				await new Promise((resolve) => {
-					const timeoutId = setTimeout(resolve, 50);
-					abortController.signal.addEventListener('abort', () => clearTimeout(timeoutId));
-				});
-			}
+        if (error && error === 'unauthorized') {
+            if (!$authStore.isAuthenticated) {
+                const targetUrl = redirect ? decodeURIComponent(redirect) : '/';
+                serviceLogin({ appState: { targetUrl } });
+            } else {
+                const url = new URL(window.location.href);
+                url.searchParams.delete('error');
+                url.searchParams.delete('redirect');
+                replaceState(url.pathname, {});
+            }
+        }
+    }
 
-			if (abortController.signal.aborted) return;
-
-			const urlParams = new URLSearchParams(window.location.search);
-			const error = urlParams.get('error');
-			const redirect = urlParams.get('redirect');
-
-			if (error === 'unauthorized') {
-				const targetUrl = redirect ? decodeURIComponent(redirect) : '/';
-				await serviceLogin({ appState: { targetUrl } });
-			}
-		};
-
-		waitForAuth();
-
-		return () => abortController.abort();
-	});
+	onMount(() => {
+        return waitForAuth(
+            async () => (checkAndLogin()),
+            { requiresAuth: false }
+        );
+    });
 </script>
 
 <div class="page-container">

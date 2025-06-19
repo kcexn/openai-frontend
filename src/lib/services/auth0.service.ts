@@ -1,6 +1,6 @@
 import { PUBLIC_AUTH_DOMAIN, PUBLIC_CLIENT_ID, PUBLIC_BACKEND_HOST } from '$env/static/public';
 import { goto } from '$app/navigation';
-import { writable, type Writable } from 'svelte/store';
+import { writable, get, type Writable } from 'svelte/store';
 import {
 	createAuth0Client,
 	type Auth0Client,
@@ -39,26 +39,25 @@ export async function initializeAuth0Client() {
 			authorizationParams: {
 				audience: PUBLIC_BACKEND_HOST,
 				redirect_uri: window.location.origin
-			}
+			},
+			cacheLocation: 'localstorage',
+			useRefreshTokens: true
 		});
-
-		if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
-			const { appState } = await clientInstance.handleRedirectCallback();
-			await goto(appState?.targetUrl || window.location.pathname, { replaceState: true });
-		}
-
+        if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
+            const { appState } = await clientInstance.handleRedirectCallback();
+            goto(appState?.targetUrl || '');
+        }
 		const isAuthenticated = await clientInstance.isAuthenticated();
 		const user = isAuthenticated ? await clientInstance.getUser() : undefined;
-
 		authStore.update((store) => ({
-			...store,
+            ...store,
 			auth0Client: clientInstance,
 			isAuthenticated,
 			user,
 			isLoading: false
 		}));
 	} catch (e) {
-		const error = e instanceof Error ? e : new Error(String(e));
+        const error = e instanceof Error ? e : new Error(String(e));
 		authStore.update((store) => ({ ...store, error, isLoading: false }));
 		console.error('Error initializing Auth0 client:', error);
 	}
@@ -82,12 +81,42 @@ export async function getAccessToken(
 ): Promise<string | undefined> {
 	if (!clientInstance) {
 		console.error('Auth0 client not initialized. Call initializeAuth0Client first.');
-		return undefined;
+		return;
 	}
 	try {
 		return await clientInstance.getTokenSilently(options);
 	} catch (error) {
 		console.error('Error getting access token:', error);
-		return undefined;
+		return;
 	}
 }
+
+export function waitForAuth(
+    callBack: () => Promise<void>,
+    options: { 
+        requiresAuth: boolean,
+        redirectTo?: string,
+    } = { requiresAuth: true }
+): (...args: any[]) => any {
+    const abortController = new AbortController();
+    (async () => {
+        while (get(authStore).isLoading && !abortController.signal.aborted) {
+            await new Promise((resolve) => {
+                const timeoutId = setTimeout(resolve, 50);
+                abortController.signal.addEventListener('abort', () => clearTimeout(timeoutId));
+            });
+        }
+        if (abortController.signal.aborted) return;
+        if (options.requiresAuth && !get(authStore).isAuthenticated) {
+            const path = (options.redirectTo || '/')
+                + '?error=unauthorized&redirect='
+                + encodeURIComponent(window.location.pathname);
+            return await goto(path, { replaceState: true });
+        }
+        return await callBack();
+    })();
+
+    return () => {
+        return abortController.abort();
+    };
+};

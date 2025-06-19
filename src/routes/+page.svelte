@@ -1,12 +1,9 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onNavigate } from '$app/navigation';
 	import { Header, FeatureSection } from '$lib/components';
 	import { authStore, login as serviceLogin } from '$lib/services/auth0.service';
 
-	let isAuthenticated = $derived($authStore.isAuthenticated);
-	let isLoading = $derived($authStore.isLoading);
-
-	onMount(() => {
+	onNavigate(() => {
 		const abortController = new AbortController();
 
 		const waitForAuth = async () => {
@@ -38,22 +35,9 @@
 <div class="page-container">
 	<Header>
 		{#snippet actions()}
-			{#if isLoading}
-				<button class="btn-primary-action" disabled>
-					<span class="truncate">Loading...</span>
-				</button>
-			{:else if isAuthenticated}
-				<a href="/chat" class="btn-primary-action">
-					<span class="truncate">Start Chatting</span>
-				</a>
-			{:else}
-				<button
-					class="btn-primary-action"
-					onclick={() => serviceLogin({ appState: { targetUrl: '/chat' } })}
-				>
-					<span class="truncate">Login to Start Chatting</span>
-				</button>
-			{/if}
+			<a href="/chat" class="btn-primary-action">
+				<span class="truncate">Start Chatting</span>
+			</a>
 		{/snippet}
 	</Header>
 	<div class="page-content-wrapper">
@@ -64,8 +48,6 @@
 				subtitle="Experience the future with our intelligent assistant. Get instant answers and personalized assistance."
 				buttonText="Start Chatting"
 				buttonHref="/chat"
-				{isLoading}
-				{isAuthenticated}
 			/>
 		</div>
 	</div>

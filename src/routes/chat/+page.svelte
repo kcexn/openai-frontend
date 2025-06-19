@@ -6,9 +6,9 @@
 	import { PUBLIC_BACKEND_HOST } from '$env/static/public';
 	import { getAccessToken } from '$lib/services/auth0.service';
 
-	let { data }: { data: { messages: { id: string, role: string, content: string }[] } } = $props();
-    async function getMessages() {
-        const token = await getAccessToken();
+	let { data }: { data: { messages: { id: string; role: string; content: string }[] } } = $props();
+	async function getMessages() {
+		const token = await getAccessToken();
 		if (token) {
 			const response = await fetch(`${PUBLIC_BACKEND_HOST}/chat`, {
 				method: 'GET',
@@ -16,9 +16,9 @@
 					'Content-Type': 'application/json',
 					Authorization: `Bearer ${token}`
 				},
-				credentials: 'include',
+				credentials: 'include'
 			});
-            if (!response.ok) {
+			if (!response.ok) {
 				let errorData;
 				try {
 					errorData = await response.json();
@@ -28,10 +28,10 @@
 				console.error('Error getting messages:', response.status, errorData);
 				return;
 			}
-            const aiResponse = await response.json();
-            const messages = aiResponse.map((msg: {role: string, content: string}) => {
-                return { id: crypto.randomUUID(), ...msg };
-            });
+			const aiResponse = await response.json();
+			const messages = aiResponse.map((msg: { role: string; content: string }) => {
+				return { id: crypto.randomUUID(), ...msg };
+			});
 			data = { ...data, messages };
 			await tick();
 			window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'auto' });
@@ -39,7 +39,7 @@
 			await goto('/');
 			return undefined;
 		}
-    }
+	}
 	async function sendMessage(prompt: string) {
 		const token = await getAccessToken();
 		if (token) {
@@ -94,7 +94,7 @@
 	}
 
 	async function newChat() {
-        const token = await getAccessToken();
+		const token = await getAccessToken();
 		if (token) {
 			const response = await fetch(`${PUBLIC_BACKEND_HOST}/chat`, {
 				method: 'DELETE',
@@ -103,7 +103,7 @@
 				},
 				credentials: 'include'
 			});
-            if (!response.ok) {
+			if (!response.ok) {
 				let errorData;
 				try {
 					errorData = await response.json();
@@ -119,13 +119,13 @@
 		}
 		data = { ...data, messages: [] };
 		await tick();
-        window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'auto' });
+		window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'auto' });
 	}
 
 	let messageScrollAreaEl: HTMLDivElement;
 	let fixedFooterEl: HTMLDivElement;
 	onMount(() => {
-        getMessages();
+		getMessages();
 		if (fixedFooterEl && messageScrollAreaEl) {
 			const footerHeight = fixedFooterEl.offsetHeight;
 			messageScrollAreaEl.style.paddingBottom = `${footerHeight}px`;
@@ -168,11 +168,11 @@
 <div class="fixed-footer-outer" bind:this={fixedFooterEl}>
 	<div class="fixed-footer-inner">
 		<ChatInput {submitCallback} />
-        <div class="new-chat-button-container">
-            <button class="btn-new-chat" onclick={newChat}>
-                <span class="truncate">New Chat</span>
-            </button>
-        </div>
+		<div class="new-chat-button-container">
+			<button class="btn-new-chat" onclick={newChat}>
+				<span class="truncate">New Chat</span>
+			</button>
+		</div>
 	</div>
 </div>
 

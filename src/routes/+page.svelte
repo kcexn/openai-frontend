@@ -1,9 +1,38 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { Header, FeatureSection } from '$lib/components';
 	import { authStore, login as serviceLogin } from '$lib/services/auth0.service';
 
 	let isAuthenticated = $derived($authStore.isAuthenticated);
 	let isLoading = $derived($authStore.isLoading);
+
+	onMount(() => {
+		const abortController = new AbortController();
+
+		const waitForAuth = async () => {
+			while (!$authStore.auth0Client && !abortController.signal.aborted) {
+				await new Promise((resolve) => {
+					const timeoutId = setTimeout(resolve, 50);
+					abortController.signal.addEventListener('abort', () => clearTimeout(timeoutId));
+				});
+			}
+
+			if (abortController.signal.aborted) return;
+
+			const urlParams = new URLSearchParams(window.location.search);
+			const error = urlParams.get('error');
+			const redirect = urlParams.get('redirect');
+
+			if (error === 'unauthorized') {
+				const targetUrl = redirect ? decodeURIComponent(redirect) : '/';
+				await serviceLogin({ appState: { targetUrl } });
+			}
+		};
+
+		waitForAuth();
+
+		return () => abortController.abort();
+	});
 </script>
 
 <div class="page-container">

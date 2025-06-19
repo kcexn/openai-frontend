@@ -5,7 +5,7 @@ declare global {
 		// interface Error {}
 		interface Locals {
 			isAuthenticated?: boolean;
-            user?: string;
+			user?: string;
 		}
 		// interface PageData {}
 		// interface PageState {}

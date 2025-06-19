@@ -1,5 +1,4 @@
-import { auth0Credentials } from '$lib/data/auth0';
-import { PUBLIC_BACKEND_HOST } from '$env/static/public';
+import { PUBLIC_AUTH_DOMAIN, PUBLIC_CLIENT_ID, PUBLIC_BACKEND_HOST } from '$env/static/public';
 import { goto } from '$app/navigation';
 import { writable, type Writable } from 'svelte/store';
 import {
@@ -35,10 +34,10 @@ export async function initializeAuth0Client() {
 	authStore.update((store) => ({ ...store, isLoading: true, error: null }));
 	try {
 		clientInstance = await createAuth0Client({
-			domain: auth0Credentials.domain,
-			clientId: auth0Credentials.clientId,
+			domain: PUBLIC_AUTH_DOMAIN,
+			clientId: PUBLIC_CLIENT_ID,
 			authorizationParams: {
-				audience: `${PUBLIC_BACKEND_HOST}`,
+				audience: PUBLIC_BACKEND_HOST,
 				redirect_uri: window.location.origin
 			}
 		});

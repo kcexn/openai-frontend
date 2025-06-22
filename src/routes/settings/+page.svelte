@@ -15,7 +15,7 @@
 </script>
 
 <div class="layout-container flex h-full grow flex-col">
-	<Header title="InVolo">
+	<Header title="Chat">
 		{#snippet actions()}
 			<ActionButton href="/settings">
 				{#snippet icon()}

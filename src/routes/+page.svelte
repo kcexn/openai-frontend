@@ -28,7 +28,7 @@
 </script>
 
 <div class="page-container">
-	<Header title="InVolo">
+	<Header title="Chat">
 		{#snippet actions()}
 			<a href="/chat" class="btn-primary-action">
 				<span class="truncate">Start Chatting</span>

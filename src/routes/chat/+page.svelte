@@ -143,7 +143,7 @@
 
 <div class="fixed-header-outer">
 	<div class="fixed-header-inner">
-		<Header title="InVolo">
+		<Header title="Chat">
 			{#snippet actions()}
 				<ActionButton href="/settings">
 					{#snippet icon()}

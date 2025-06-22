@@ -5,8 +5,10 @@
 	import { GearIcon, AvatarIcon } from '$lib/components/icons';
 	import { PUBLIC_BACKEND_HOST } from '$env/static/public';
 	import { waitForAuth, getAccessToken } from '$lib/services/auth0.service';
+	import { settings } from '$lib/services/settings.service';
 
 	let { data }: { data: { messages: { id: string; role: string; content: string }[] } } = $props();
+	let systemPrompt = settings.prompt;
 	async function getMessages() {
 		const token = await getAccessToken();
 		if (token) {
@@ -42,6 +44,14 @@
 	async function sendMessage(prompt: string) {
 		const token = await getAccessToken();
 		if (token) {
+			const body: {
+				prompt: string;
+				model?: string;
+				systemPrompt?: string;
+			} = { prompt };
+			if ($systemPrompt && $systemPrompt.length > 0) {
+				body.systemPrompt = $systemPrompt;
+			}
 			return await fetch(`${PUBLIC_BACKEND_HOST}/chat`, {
 				method: 'POST',
 				headers: {
@@ -49,7 +59,7 @@
 					Authorization: `Bearer ${token}`
 				},
 				credentials: 'include',
-				body: JSON.stringify({ prompt })
+				body: JSON.stringify(body)
 			});
 		} else {
 			goto('/', { replaceState: true });
@@ -133,7 +143,7 @@
 
 <div class="fixed-header-outer">
 	<div class="fixed-header-inner">
-		<Header>
+		<Header title="InVolo">
 			{#snippet actions()}
 				<ActionButton href="/settings">
 					{#snippet icon()}

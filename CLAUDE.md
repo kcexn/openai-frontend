@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Development:**
 
 ```bash
-npm run dev          # Start development server on localhost:5173
+npm run dev          # Start development server (default port 5173)
 npm run build        # Build for production
 npm run preview      # Preview production build locally
 ```

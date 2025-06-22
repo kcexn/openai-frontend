@@ -1,5 +1,5 @@
 <script lang="ts">
-	let { actions, title = 'InVolo' } = $props();
+	let { actions, title = 'Chat' } = $props();
 	import ShieldIcon from './icons/ShieldIcon.svelte';
 </script>
 
@@ -9,7 +9,9 @@
 			<ShieldIcon />
 		</div>
 		<h2 class="openai-header-title">
-			{title}
+			<a href="/">
+				{title}
+			</a>
 		</h2>
 	</div>
 	<div class="flex flex-1 justify-end gap-8">

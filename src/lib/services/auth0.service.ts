@@ -68,12 +68,12 @@ export async function login(options?: RedirectLoginOptions) {
 		console.error('Auth0 client not initialized. Call initializeAuth0Client first.');
 		return;
 	}
-	await clientInstance.loginWithRedirect(options);
+	clientInstance.loginWithRedirect(options);
 }
 
 export async function logout(options?: LogoutOptions) {
 	if (!clientInstance) return;
-	await clientInstance.logout(options || { logoutParams: { returnTo: window.location.origin } });
+	clientInstance.logout(options || { logoutParams: { returnTo: window.location.origin } });
 }
 
 export async function getAccessToken(
@@ -84,7 +84,7 @@ export async function getAccessToken(
 		return;
 	}
 	try {
-		return await clientInstance.getTokenSilently(options);
+		return clientInstance.getTokenSilently(options);
 	} catch (error) {
 		console.error('Error getting access token:', error);
 		return;

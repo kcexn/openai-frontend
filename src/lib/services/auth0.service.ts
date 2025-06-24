@@ -21,7 +21,7 @@ export interface AuthState {
 const initialState: AuthState = {
 	auth0Client: undefined,
 	isAuthenticated: false,
-	isLoading: true,
+	isLoading: false,
 	user: undefined,
 	error: null
 };
@@ -29,7 +29,7 @@ const initialState: AuthState = {
 export const authStore: Writable<AuthState> = writable(initialState);
 
 let clientInstance: Auth0Client | undefined;
-export async function initializeAuth0Client() {
+export async function getAuth0Client() {
 	if (clientInstance) return;
 	authStore.update((store) => ({ ...store, isLoading: true, error: null }));
 	try {
@@ -45,7 +45,7 @@ export async function initializeAuth0Client() {
 		});
 		if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
 			const { appState } = await clientInstance.handleRedirectCallback();
-			goto(appState?.targetUrl || '');
+			goto(appState?.targetUrl || '', { replaceState: true });
 		}
 		const isAuthenticated = await clientInstance.isAuthenticated();
 		const user = isAuthenticated ? await clientInstance.getUser() : undefined;
@@ -91,34 +91,19 @@ export async function getAccessToken(
 	}
 }
 
-export function waitForAuth(
-	callBack: () => Promise<void>,
+export async function auth0Guard(
 	options: {
 		requiresAuth: boolean;
 		redirectTo?: string;
-	} = { requiresAuth: true }
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-): (...args: any[]) => any {
-	const abortController = new AbortController();
-	(async () => {
-		while (get(authStore).isLoading && !abortController.signal.aborted) {
-			await new Promise((resolve) => {
-				const timeoutId = setTimeout(resolve, 50);
-				abortController.signal.addEventListener('abort', () => clearTimeout(timeoutId));
-			});
-		}
-		if (abortController.signal.aborted) return;
-		if (options.requiresAuth && !get(authStore).isAuthenticated) {
-			const path =
-				(options.redirectTo || '/') +
-				'?error=unauthorized&redirect=' +
-				encodeURIComponent(window.location.pathname);
-			return await goto(path, { replaceState: true });
-		}
-		return await callBack();
-	})();
-
-	return () => {
-		return abortController.abort();
-	};
+	} = { requiresAuth: true },
+	callback?: () => void | Promise<void>
+) {
+	while (get(authStore).isLoading) {
+		await new Promise((resolve) => setTimeout(resolve, 50));
+	}
+	if (options.requiresAuth && !get(authStore).isAuthenticated) {
+		const path = '/login?redirect=' + encodeURIComponent(options.redirectTo || '/');
+		return goto(path, { replaceState: true });
+	}
+	if (callback) return callback();
 }

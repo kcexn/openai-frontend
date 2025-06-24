@@ -4,43 +4,11 @@
 	import { Header, ActionButton, MessageRow, ChatInput } from '$lib/components';
 	import { GearIcon, AvatarIcon } from '$lib/components/icons';
 	import { PUBLIC_BACKEND_HOST } from '$env/static/public';
-	import { waitForAuth, getAccessToken } from '$lib/services/auth0.service';
+	import { getAccessToken } from '$lib/services/auth0.service';
 	import { settings } from '$lib/services/settings.service';
 
-	let { data }: { data: { messages: { id: string; role: string; content: string }[] } } = $props();
+	let { data } = $props();
 	let systemPrompt = settings.prompt;
-	async function getMessages() {
-		const token = await getAccessToken();
-		if (token) {
-			const response = await fetch(`${PUBLIC_BACKEND_HOST}/chat`, {
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${token}`
-				},
-				credentials: 'include'
-			});
-			if (!response.ok) {
-				let errorData;
-				try {
-					errorData = await response.json();
-				} catch {
-					errorData = { message: response.statusText };
-				}
-				console.error('Error getting messages:', response.status, errorData);
-				return;
-			}
-			const aiResponse = await response.json();
-			const messages = aiResponse.map((msg: { role: string; content: string }) => {
-				return { id: crypto.randomUUID(), ...msg };
-			});
-			data = { ...data, messages };
-			await tick();
-			window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'auto' });
-		} else {
-			goto('/', { replaceState: true });
-		}
-	}
 	async function sendMessage(prompt: string) {
 		const token = await getAccessToken();
 		if (token) {
@@ -62,7 +30,9 @@
 				body: JSON.stringify(body)
 			});
 		} else {
-			goto('/', { replaceState: true });
+			return goto('/login?redirect=' + encodeURIComponent(window.location.pathname), {
+				replaceState: true
+			});
 		}
 	}
 	async function submitCallback(prompt: string) {
@@ -120,8 +90,9 @@
 				return;
 			}
 		} else {
-			goto('/', { replaceState: true });
-			return;
+			return goto('/login?redirect=' + encodeURIComponent(window.location.pathname), {
+				replaceState: true
+			});
 		}
 		data = { ...data, messages: [] };
 		await tick();
@@ -130,14 +101,13 @@
 
 	let messageScrollAreaEl: HTMLDivElement;
 	let fixedFooterEl: HTMLDivElement;
-	onMount(() => {
-		return waitForAuth(async () => {
-			getMessages();
-			if (fixedFooterEl && messageScrollAreaEl) {
-				const footerHeight = fixedFooterEl.offsetHeight;
-				messageScrollAreaEl.style.paddingBottom = `${footerHeight}px`;
-			}
-		});
+	onMount(async () => {
+		if (fixedFooterEl && messageScrollAreaEl) {
+			const footerHeight = fixedFooterEl.offsetHeight;
+			messageScrollAreaEl.style.paddingBottom = `${footerHeight}px`;
+		}
+		await tick();
+		window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'auto' });
 	});
 </script>
 

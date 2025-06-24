@@ -1,16 +1,10 @@
 <script>
 	import '../app.css';
-	import { initializeAuth0Client } from '$lib/services/auth0.service';
-	import { onMount } from 'svelte';
-
-	onMount(() => {
-		initializeAuth0Client();
-	});
 	let { children } = $props();
 </script>
 
 <div class="group/design-root design-root-layout">
-	{@render children()}
+	{@render children?.()}
 </div>
 
 <style lang="postcss">

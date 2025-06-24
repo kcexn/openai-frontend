@@ -1,30 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { replaceState } from '$app/navigation';
 	import { Header, FeatureSection } from '$lib/components';
-	import { waitForAuth, authStore, login as serviceLogin } from '$lib/services/auth0.service';
-
-	const checkAndLogin = async () => {
-		const urlParams = new URLSearchParams(window.location.search);
-		const error = urlParams.get('error');
-		const redirect = urlParams.get('redirect');
-
-		if (error && error === 'unauthorized') {
-			if (!$authStore.isAuthenticated) {
-				const targetUrl = redirect ? decodeURIComponent(redirect) : '/';
-				serviceLogin({ appState: { targetUrl } });
-			} else {
-				const url = new URL(window.location.href);
-				url.searchParams.delete('error');
-				url.searchParams.delete('redirect');
-				replaceState(url.pathname, {});
-			}
-		}
-	};
-
-	onMount(() => {
-		return waitForAuth(async () => checkAndLogin(), { requiresAuth: false });
-	});
 </script>
 
 <div class="page-container">

@@ -1,17 +1,12 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { ActionButton, Header } from '$lib/components';
 	import { CaretRightIcon } from '$lib/components/icons';
-	import { waitForAuth, logout as serviceLogout } from '$lib/services/auth0.service';
+	import { logout as serviceLogout } from '$lib/services/auth0.service';
 	import { GearIcon, AvatarIcon } from '$lib/components/icons';
 	import { settings } from '$lib/services/settings.service';
 
 	let prompt = settings.prompt;
 	const defaultPrompt = settings.defaultPrompt;
-
-	onMount(() => {
-		return waitForAuth(async () => {});
-	});
 </script>
 
 <div class="layout-container flex h-full grow flex-col">

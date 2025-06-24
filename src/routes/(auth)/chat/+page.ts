@@ -2,7 +2,10 @@ import { goto } from '$app/navigation';
 import { getAccessToken } from '$lib/services/auth0.service';
 import { PUBLIC_BACKEND_HOST } from '$env/static/public';
 
-async function getMessages() {
+interface Options {
+	fetch: typeof fetch;
+}
+async function getMessages({ fetch }: Options) {
 	const token = await getAccessToken();
 	if (token) {
 		const response = await fetch(`${PUBLIC_BACKEND_HOST}/chat`, {
@@ -32,10 +35,9 @@ async function getMessages() {
 	}
 }
 
-export async function load({ url }) {
+export async function load({ url, fetch }) {
 	try {
-		const messages = await getMessages();
-		return { messages };
+		return { messages: await getMessages({ fetch }) };
 	} catch {
 		goto('/login?redirect=' + encodeURIComponent(url.pathname), { replaceState: true });
 	}

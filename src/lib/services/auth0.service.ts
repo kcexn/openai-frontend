@@ -29,7 +29,7 @@ const initialState: AuthState = {
 export const authStore: Writable<AuthState> = writable(initialState);
 
 let clientInstance: Auth0Client | undefined;
-export async function getAuth0Client() {
+export async function initAuth0() {
 	if (clientInstance) return;
 	authStore.update((store) => ({ ...store, isLoading: true, error: null }));
 	try {
@@ -45,7 +45,7 @@ export async function getAuth0Client() {
 		});
 		if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
 			const { appState } = await clientInstance.handleRedirectCallback();
-			goto(appState?.targetUrl || '', { replaceState: true });
+			window.location.replace(appState?.targetUrl || '');
 		}
 		const isAuthenticated = await clientInstance.isAuthenticated();
 		const user = isAuthenticated ? await clientInstance.getUser() : undefined;
@@ -98,9 +98,6 @@ export async function auth0Guard(
 	} = { requiresAuth: true },
 	callback?: () => void | Promise<void>
 ) {
-	while (get(authStore).isLoading) {
-		await new Promise((resolve) => setTimeout(resolve, 50));
-	}
 	if (options.requiresAuth && !get(authStore).isAuthenticated) {
 		const path = '/login?redirect=' + encodeURIComponent(options.redirectTo || '/');
 		return goto(path, { replaceState: true });

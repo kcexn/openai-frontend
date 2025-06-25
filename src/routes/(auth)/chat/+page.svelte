@@ -64,11 +64,11 @@
 					role: 'assistant',
 					content: `Error: ${errorData.message}`
 				});
-				data = { ...data, messages };
 				console.error('Error sending message:', response.status, errorData);
+			} else {
+				const aiResponse = await response.json();
+				messages.push({ id: crypto.randomUUID(), ...aiResponse });
 			}
-			const aiResponse = await response.json();
-			messages.push({ id: crypto.randomUUID(), ...aiResponse });
 			data = { ...data, messages };
 			await scrollToBottom();
 		}

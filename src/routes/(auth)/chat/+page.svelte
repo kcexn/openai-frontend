@@ -7,6 +7,20 @@
 	import { getAccessToken } from '$lib/services/auth0.service';
 	import { settings } from '$lib/services/settings.service';
 
+	interface ScrollOptions {
+		top?: number;
+		left?: number;
+		behaviour?: ScrollBehavior;
+	}
+
+	const defaultScroll: ScrollOptions = {
+		behaviour: 'auto'
+	};
+	async function scrollTo(options?: ScrollOptions): Promise<void> {
+		await tick();
+		window.scrollTo({ ...defaultScroll, ...options });
+	}
+
 	let { data } = $props();
 	let systemPrompt = settings.prompt;
 	async function sendMessage(prompt: string) {
@@ -35,6 +49,7 @@
 			});
 		}
 	}
+
 	async function submitCallback(prompt: string) {
 		const messages = [
 			...data.messages,
@@ -42,8 +57,7 @@
 			{ id: crypto.randomUUID(), role: 'assistant', content: '...' }
 		];
 		data = { ...data, messages };
-		await tick();
-		window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'auto' });
+		await scrollTo({ top: document.documentElement.scrollHeight });
 		messages.pop();
 		const response = await sendMessage(prompt);
 		if (response) {
@@ -65,10 +79,10 @@
 			const aiResponse = await response.json();
 			messages.push({ id: crypto.randomUUID(), ...aiResponse });
 			data = { ...data, messages };
-			await tick();
-			window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'auto' });
+			await scrollTo({ top: document.documentElement.scrollHeight });
 		}
 	}
+
 	async function newChat() {
 		const token = await getAccessToken();
 		if (token) {
@@ -95,8 +109,7 @@
 			});
 		}
 		data = { ...data, messages: [] };
-		await tick();
-		window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'auto' });
+		await scrollTo({ top: document.documentElement.scrollHeight });
 	}
 
 	let messageScrollAreaEl: HTMLDivElement;
@@ -106,8 +119,7 @@
 			const footerHeight = fixedFooterEl.offsetHeight;
 			messageScrollAreaEl.style.paddingBottom = `${footerHeight}px`;
 		}
-		await tick();
-		window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'auto' });
+		await scrollTo({ top: document.documentElement.scrollHeight });
 	});
 </script>
 

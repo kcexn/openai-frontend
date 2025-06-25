@@ -7,18 +7,9 @@
 	import { getAccessToken } from '$lib/services/auth0.service';
 	import { settings } from '$lib/services/settings.service';
 
-	interface ScrollOptions {
-		top?: number;
-		left?: number;
-		behaviour?: ScrollBehavior;
-	}
-
-	const defaultScroll: ScrollOptions = {
-		behaviour: 'auto'
-	};
-	async function scrollTo(options?: ScrollOptions): Promise<void> {
+	async function scrollToBottom(): Promise<void> {
 		await tick();
-		window.scrollTo({ ...defaultScroll, ...options });
+		window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'auto' });
 	}
 
 	let { data } = $props();
@@ -57,7 +48,7 @@
 			{ id: crypto.randomUUID(), role: 'assistant', content: '...' }
 		];
 		data = { ...data, messages };
-		await scrollTo({ top: document.documentElement.scrollHeight });
+		await scrollToBottom();
 		messages.pop();
 		const response = await sendMessage(prompt);
 		if (response) {
@@ -79,7 +70,7 @@
 			const aiResponse = await response.json();
 			messages.push({ id: crypto.randomUUID(), ...aiResponse });
 			data = { ...data, messages };
-			await scrollTo({ top: document.documentElement.scrollHeight });
+			await scrollToBottom();
 		}
 	}
 
@@ -109,7 +100,7 @@
 			});
 		}
 		data = { ...data, messages: [] };
-		await scrollTo({ top: document.documentElement.scrollHeight });
+		await scrollToBottom();
 	}
 
 	let messageScrollAreaEl: HTMLDivElement;
@@ -119,7 +110,7 @@
 			const footerHeight = fixedFooterEl.offsetHeight;
 			messageScrollAreaEl.style.paddingBottom = `${footerHeight}px`;
 		}
-		await scrollTo({ top: document.documentElement.scrollHeight });
+		await scrollToBottom();
 	});
 </script>
 

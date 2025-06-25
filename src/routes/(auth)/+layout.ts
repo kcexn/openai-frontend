@@ -4,7 +4,6 @@ export const prerender = false;
 
 export async function load({ url }) {
 	await auth0Guard({
-		requiresAuth: true,
 		redirectTo: url.pathname
 	});
 }

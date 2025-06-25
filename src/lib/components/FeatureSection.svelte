@@ -4,7 +4,7 @@
 
 <div class="feature-section-container">
 	<div class="feature-section-image" style="background-image: url('{imageUrl}');"></div>
-	<div data-sveltekit-preload-data="false" class="feature-section-content">
+	<div class="feature-section-content">
 		<div class="feature-section-text">
 			<h1 class="feature-section-title">
 				{title}

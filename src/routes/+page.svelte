@@ -5,13 +5,15 @@
 <div class="page-container">
 	<Header title="Chat">
 		{#snippet actions()}
-			<a href="/chat" class="btn-primary-action">
-				<span class="truncate">Start Chatting</span>
-			</a>
+			<div data-sveltekit-preload-data="false">
+				<a href="/chat" class="btn-primary-action">
+					<span class="truncate">Start Chatting</span>
+				</a>
+			</div>
 		{/snippet}
 	</Header>
 	<div class="page-content-wrapper">
-		<div class="page-content-container">
+		<div data-sveltekit-preload-data="false" class="page-content-container">
 			<FeatureSection
 				imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuCvhSV7Cq0cigCvdvtodd0NDi8VOs6PXdVOzPASEfwIQUGHSINPwjMh23oFfPhOdvAZfrnsh2SEHRbxMuRymWwSd2TsLp2_z6GV0I0ysJFtxESDE3R5FwK60f7zDpEVr8oC8aDN8_Z10I9iR7O_eTeTaY1hvyRKDVT-wOXu5MflauFa7dTlHZc7Ncjs_k4_QdWjd2bC6SfPii7-sGso26tV7gL96WCcEuVRedo3tjaSgkKVpx27sZI2DHGT4MSjB0aNL7oraOIkPDuH"
 				title="Your AI-Powered Assistant"

@@ -3,7 +3,7 @@
 	import ShieldIcon from './icons/ShieldIcon.svelte';
 </script>
 
-<header data-sveltekit-preload-data="false" class="openai-header">
+<header class="openai-header">
 	<div class="flex items-center gap-4 text-[#0d141c]">
 		<div class="size-4">
 			<ShieldIcon />

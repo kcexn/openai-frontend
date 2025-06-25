@@ -91,16 +91,22 @@ export async function getAccessToken(
 	}
 }
 
-export async function auth0Guard(
-	options: {
-		requiresAuth: boolean;
-		redirectTo?: string;
-	} = { requiresAuth: true },
-	callback?: () => void | Promise<void>
-) {
-	if (options.requiresAuth && !get(authStore).isAuthenticated) {
-		const path = '/login?redirect=' + encodeURIComponent(options.redirectTo || '/');
+export interface RouteGuardOptions {
+	requiresAuth?: boolean;
+	loginPath?: string;
+	redirectTo?: string;
+}
+
+const defaultRouteGuardOptions: RouteGuardOptions = {
+	requiresAuth: true,
+	loginPath: '/login'
+};
+
+export async function auth0Guard(options?: RouteGuardOptions) {
+	const { requiresAuth, loginPath, redirectTo } = { ...defaultRouteGuardOptions, ...options };
+	if (requiresAuth && !get(authStore).isAuthenticated) {
+		const path =
+			loginPath + '?redirect=' + encodeURIComponent(redirectTo || window.location.pathname);
 		return goto(path, { replaceState: true });
 	}
-	if (callback) return callback();
 }
